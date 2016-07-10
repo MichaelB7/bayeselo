@@ -20,14 +20,7 @@ const char CVersion::szCopyright[] =
 "This program comes with ABSOLUTELY NO WARRANTY.\n"
 "This is free software, and you are welcome to redistribute it\n"
 "under the terms and conditions of the GNU General Public License.\n"
-"See http://www.gnu.org/copyleft/gpl.html for details.\n\n"
-"Undocumented Keyboard Shortcuts:\n"
-"   rp = readpgn\n"
-"   o  = offset\n"
-"   r  = ratings\n"
-"   d  = details\n"
-"Enjoy!\n\n"
-;
+"See http://www.gnu.org/copyleft/gpl.html for details.\n";
 
 
 const char CVersion::szBinary[] = 
