@@ -107,8 +107,8 @@ void EloDataFromFile(CPGNLex &pgnlex,
 
   if (rs.GetGames() % 1000 == 0 || fTheEnd)
   {
-   std::cerr << rs.GetGames() << " game(s) loaded\n";
-   //std::cerr << Ignored << "";
+   std::cerr << rs.GetGames() << " game(s) loaded\r";
+   //std::cerr << Ignored << " game(s) with unknown result ignored.\r";
   }
 
   if (fTheEnd)
