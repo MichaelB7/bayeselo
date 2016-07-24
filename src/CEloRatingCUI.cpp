@@ -618,7 +618,9 @@ int CEloRatingCUI::ProcessCommand(const char *pszCommand,
    out << std::setw(4) << "   D" << ' ';
    out << std::setw(5) << "  W% " << ' ';
    out << std::setw(5) << "  =% " << ' ';
-      out << std::setw(5) << " OppR" << ' ';
+   out << std::setw(5) << " OppR" << ' ';
+   out << '\n';
+   out << std::setw(Width+65) << "---------------------------------------------------------------------------------------------------------";
    out << '\n';
 
    const double *pElo = bt.GetElo();
@@ -659,15 +661,15 @@ int CEloRatingCUI::ProcessCommand(const char *pszCommand,
 	 out << std::setw(5) << std::setprecision(1)<< fixed << (100 * crsNoPrior.CountDraws(j) /
 										double(Games)) << ' ';
 	 out << std::setw(5) <<  RoundDouble(EloScale * crs.AverageOpponent(j, pElo) + eloOffset) << ' ';
-		
-     out << '\n';
+	 out << '\n';
     }
    }
-
-   out.flags(f);
-  }
-  break;
-		 
+	 out << std::setw(Width+65) << "---------------------------------------------------------------------------------------------------------";
+	 out << '\n';
+	 out.flags(f);
+ }
+	break;
+	
 	 case IDC_R: //same as IDC_Ratings, keyboatd shortcut//////////////////////////////////
 	 {
    int MinGames = 1;
@@ -721,7 +723,9 @@ int CEloRatingCUI::ProcessCommand(const char *pszCommand,
    out << std::setw(4) << "   D" << ' ';
    out << std::setw(5) << "  W% " << ' ';
    out << std::setw(5) << "  =% " << ' ';
-		 out << std::setw(5) << " OppR" << ' ';
+   out << std::setw(5) << " OppR" << ' ';
+   out << '\n';
+   out << std::setw(Width+65) << "---------------------------------------------------------------------------------------------------------";
    out << '\n';
 		 
    const double *pElo = bt.GetElo();
@@ -762,11 +766,11 @@ int CEloRatingCUI::ProcessCommand(const char *pszCommand,
 	 out << std::setw(5) << std::setprecision(1)<< fixed << (100 * crsNoPrior.CountDraws(j) /
 															 double(Games)) << ' ';
 	 out << std::setw(5) <<  RoundDouble(EloScale * crs.AverageOpponent(j, pElo) + eloOffset) << ' ';
-		
-		out << '\n';
+	 out << '\n';
 	}
    }
-		 
+   out << std::setw(Width+65) << "---------------------------------------------------------------------------------------------------------";
+   out << '\n';
    out.flags(f);
   }
   break;
