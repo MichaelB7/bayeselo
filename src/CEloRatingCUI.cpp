@@ -94,7 +94,7 @@ CEloRatingCUI::CEloRatingCUI(const CResultSet &rsInit,
  eloMin(-1500),
  eloMax(1500),
  Resolution(1001),
- eloOffset(0),
+ eloOffset(3100),
  EloScale(1.0),
  Prior(2.0),
  bt(crs),
@@ -606,20 +606,23 @@ int CEloRatingCUI::ProcessCommand(const char *pszCommand,
    out.setf(std::ios::left, std::ios::adjustfield);
    out << std::setw(Width) << "Name" << ' ';
    out.setf(std::ios::right, std::ios::adjustfield);
-   out << std::setw(5) << "Elo" << ' ';
+   out << std::setw(7) << " Rating" << ' ';
+   out << std::setw(4) << "  Δ " << ' ';
    out << std::setw(4) << "  +" << ' ';
    out << std::setw(4) << "  -" << ' ';
-   out << std::setw(5) << "Games" << ' ';
-   out << std::setw(7) << "  Score" << ' ';
-   out << std::setw(5) << "   SC%" << ' ';
-   out << std::setw(5) << " OppR" << ' ';
-   out << std::setw(5) << "  Won" << ' ';
-   out << std::setw(5) << " Lost" << ' ';
-   out << std::setw(5) << " Draw" << ' ';
-   out << std::setw(5) << "   EQ%" << ' ';
+   out << std::setw(5) << "    #" << ' ';
+   out << std::setw(6) << "    Σ " << ' ';
+   out << std::setw(5) << "  Σ% " << ' ';
+   out << std::setw(4) << "   W" << ' ';
+   out << std::setw(4) << "   L" << ' ';
+   out << std::setw(4) << "   D" << ' ';
+   out << std::setw(5) << "  W% " << ' ';
+   out << std::setw(5) << "  =% " << ' ';
+      out << std::setw(5) << " OppR" << ' ';
    out << '\n';
 
    const double *pElo = bt.GetElo();
+	  double PriorELO = 0;
    for (int i = 0, Counter = 0; i < crs.GetPlayers(); i++)
    {
     int j = vPermutation[i];
@@ -637,18 +640,25 @@ int CEloRatingCUI::ProcessCommand(const char *pszCommand,
      out.setf(std::ios::left, std::ios::adjustfield);
      out << std::setw(Width) << vecName[j] << ' ';
      out.setf(std::ios::right, std::ios::adjustfield);
-     out << std::setw(5) << RoundDouble(EloScale * bt.GetElo(j) + eloOffset) << ' ';
+     out << std::setw(6) << RoundDouble(EloScale * bt.GetElo(j) + eloOffset) << ' ';
+	 if (i == 0 ){
+		 out << std::setw(5) << std::setprecision(1) << fixed << (EloScale * bt.GetElo(j) - EloScale * bt.GetElo(j)) << ' ';}
+	 else
+		 out << std::setw(5) << std::setprecision(1) << fixed << - (EloScale * bt.GetElo(j) - PriorELO) << ' ';
+	 PriorELO = (EloScale * bt.GetElo(j));
      out << std::setw(4) << RoundDouble(EloScale * veloUpper[j]) << ' ';
      out << std::setw(4) << RoundDouble(EloScale * veloLower[j]) << ' ';
-     out << std::setw(5) << setprecision(0) <<RoundDouble(Games) << ' ';//reset precision - don't wnat decimals
-     out << std::setw(7) << std::setprecision(1) << fixed << Score << ' ';
-	 out << std::setw(6) << std::fixed << std::setprecision(1) << (100 *  (Score / Games)) << ' ';
-     out << std::setw(5) <<  RoundDouble(EloScale * crs.AverageOpponent(j, pElo) + eloOffset) << ' ';
-	 out << std::setw(5) <<  RoundDouble(crsNoPrior.CountWins(j)) << ' ';
-	 out << std::setw(5) <<  RoundDouble(Games) - RoundDouble(crsNoPrior.CountWins(j))- RoundDouble(crsNoPrior.CountDraws(j)) << " ";// losses are calculated - games minus wins and draws
-	 out << std::setw(5) <<  RoundDouble(crsNoPrior.CountDraws(j)) << ' ';
-	 out << std::setw(6) << std::setprecision(1)<< fixed << (100 * crsNoPrior.CountDraws(j) /
+     out << std::setw(5) << setprecision(0) <<RoundDouble(Games) << ' ';//reset precision - don't want decimals
+     out << std::setw(6) << std::setprecision(1) << fixed << Score << ' ';
+	 out << std::setw(5) << std::fixed << std::setprecision(1) << (100 *  (Score / Games)) << ' ';
+	 out << std::setw(4) <<  RoundDouble(crsNoPrior.CountWins(j)) << ' ';
+	 out << std::setw(4) <<  RoundDouble(Games) - RoundDouble(crsNoPrior.CountWins(j))- RoundDouble(crsNoPrior.CountDraws(j)) << " ";// losses are calculated - games minus wins and draws
+	 out << std::setw(4) <<  RoundDouble(crsNoPrior.CountDraws(j)) << ' ';
+	 out << std::setw(5) << std::setprecision(1)<< fixed << (100 * crsNoPrior.CountWins(j) /
+																double(Games)) << ' ';
+	 out << std::setw(5) << std::setprecision(1)<< fixed << (100 * crsNoPrior.CountDraws(j) /
 										double(Games)) << ' ';
+	 out << std::setw(5) <<  RoundDouble(EloScale * crs.AverageOpponent(j, pElo) + eloOffset) << ' ';
 		
      out << '\n';
     }
@@ -659,15 +669,15 @@ int CEloRatingCUI::ProcessCommand(const char *pszCommand,
   break;
 		 
 	 case IDC_R: //same as IDC_Ratings, keyboatd shortcut//////////////////////////////////
-  {
+	 {
    int MinGames = 1;
    std::string sFileName;
    int fFullRank = 0;
-	  
+		 
    std::istringstream(pszParameters) >> MinGames >> sFileName >> fFullRank;
    if (MinGames < 1)
-	  MinGames = 1;
-	  
+		 MinGames = 1;
+		 
    //
    // Read a list of player names
    //
@@ -682,37 +692,40 @@ int CEloRatingCUI::ProcessCommand(const char *pszCommand,
     else
 	   break;
    }
-	  
+		 
    std::sort(vPermutation.begin(),
 			 vPermutation.end(),
 			 CIndirectCompare<double>(bt.GetElo()));
-	  
+		 
    int Width = MaxNameLength;
    if (Width < 4)
-	  Width = 4;
-	  
+		 Width = 4;
+		 
    CCondensedResults crsNoPrior(rs);
-	  
+		 
    std::ios::fmtflags f = out.flags();
    out.setf(std::ios::right, std::ios::adjustfield);
    out << std::setw(3) << "Rank" << ' ';
    out.setf(std::ios::left, std::ios::adjustfield);
    out << std::setw(Width) << "Name" << ' ';
    out.setf(std::ios::right, std::ios::adjustfield);
-   out << std::setw(5) << "Elo" << ' ';
+   out << std::setw(7) << " Rating" << ' ';
+   out << std::setw(4) << "  Δ " << ' ';
    out << std::setw(4) << "  +" << ' ';
    out << std::setw(4) << "  -" << ' ';
-   out << std::setw(5) << "Games" << ' ';
-   out << std::setw(7) << "  Score" << ' ';
-   out << std::setw(5) << "   SC%" << ' ';
-   out << std::setw(5) << " OppR" << ' ';
-   out << std::setw(5) << "  Won" << ' ';
-   out << std::setw(5) << " Lost" << ' ';
-   out << std::setw(5) << " Draw" << ' ';
-   out << std::setw(5) << "   EQ%" << ' ';
+   out << std::setw(5) << "    #" << ' ';
+   out << std::setw(6) << "    Σ " << ' ';
+   out << std::setw(5) << "  Σ% " << ' ';
+   out << std::setw(4) << "   W" << ' ';
+   out << std::setw(4) << "   L" << ' ';
+   out << std::setw(4) << "   D" << ' ';
+   out << std::setw(5) << "  W% " << ' ';
+   out << std::setw(5) << "  =% " << ' ';
+		 out << std::setw(5) << " OppR" << ' ';
    out << '\n';
-	  
+		 
    const double *pElo = bt.GetElo();
+	  double PriorELO = 0;
    for (int i = 0, Counter = 0; i < crs.GetPlayers(); i++)
    {
     int j = vPermutation[i];
@@ -730,26 +743,33 @@ int CEloRatingCUI::ProcessCommand(const char *pszCommand,
 		out.setf(std::ios::left, std::ios::adjustfield);
 		out << std::setw(Width) << vecName[j] << ' ';
 		out.setf(std::ios::right, std::ios::adjustfield);
-		out << std::setw(5) << RoundDouble(EloScale * bt.GetElo(j) + eloOffset) << ' ';
+		out << std::setw(6) << RoundDouble(EloScale * bt.GetElo(j) + eloOffset) << ' ';
+	 if (i == 0 ){
+		 out << std::setw(5) << std::setprecision(1) << fixed << (EloScale * bt.GetElo(j) - EloScale * bt.GetElo(j)) << ' ';}
+	 else
+		out << std::setw(5) << std::setprecision(1) << fixed << - (EloScale * bt.GetElo(j) - PriorELO) << ' ';
+	 PriorELO = (EloScale * bt.GetElo(j));
 		out << std::setw(4) << RoundDouble(EloScale * veloUpper[j]) << ' ';
 		out << std::setw(4) << RoundDouble(EloScale * veloLower[j]) << ' ';
-		out << std::setw(5) << setprecision(0) <<RoundDouble(Games) << ' ';//reset precision - don't wnat decimals
-		out << std::setw(7) << std::setprecision(1) << fixed << Score << ' ';
-	 out << std::setw(6) << std::fixed << std::setprecision(1) << (100 *  (Score / Games)) << ' ';
-		out << std::setw(5) <<  RoundDouble(EloScale * crs.AverageOpponent(j, pElo) + eloOffset) << ' ';
-	 out << std::setw(5) <<  RoundDouble(crsNoPrior.CountWins(j)) << ' ';
-	 out << std::setw(5) <<  RoundDouble(Games) - RoundDouble(crsNoPrior.CountWins(j))- RoundDouble(crsNoPrior.CountDraws(j)) << " ";// losses are calculated - games minus wins and draws
-	 out << std::setw(5) <<  RoundDouble(crsNoPrior.CountDraws(j)) << ' ';
-	 out << std::setw(6) << std::setprecision(1)<< fixed << (100 * crsNoPrior.CountDraws(j) /
+		out << std::setw(5) << setprecision(0) <<RoundDouble(Games) << ' ';//reset precision - don't want decimals
+		out << std::setw(6) << std::setprecision(1) << fixed << Score << ' ';
+	 out << std::setw(5) << std::fixed << std::setprecision(1) << (100 *  (Score / Games)) << ' ';
+	 out << std::setw(4) <<  RoundDouble(crsNoPrior.CountWins(j)) << ' ';
+	 out << std::setw(4) <<  RoundDouble(Games) - RoundDouble(crsNoPrior.CountWins(j))- RoundDouble(crsNoPrior.CountDraws(j)) << " ";// losses are calculated - games minus wins and draws
+	 out << std::setw(4) <<  RoundDouble(crsNoPrior.CountDraws(j)) << ' ';
+	 out << std::setw(5) << std::setprecision(1)<< fixed << (100 * crsNoPrior.CountWins(j) /
+																double(Games)) << ' ';
+	 out << std::setw(5) << std::setprecision(1)<< fixed << (100 * crsNoPrior.CountDraws(j) /
 															 double(Games)) << ' ';
+	 out << std::setw(5) <<  RoundDouble(EloScale * crs.AverageOpponent(j, pElo) + eloOffset) << ' ';
 		
 		out << '\n';
 	}
    }
-	  
+		 
    out.flags(f);
   }
-		 break;
+  break;
 
   case IDC_Details: ////////////////////////////////////////////////////////
   {
