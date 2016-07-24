@@ -664,7 +664,10 @@ int CEloRatingCUI::ProcessCommand(const char *pszCommand,
 	 out << '\n';
     }
    }
-	 out << std::setw(Width+65) << "---------------------------------------------------------------------------------------------------------";
+	 out << std::setw(Width+65) << "---------------------------------------------------------------------------------------------------------\n";
+	 out << std::setw(47) << "  Δ = delta from the next higher rated opponent\n";
+	 out << std::setw(28) << "  # = number of games played\n";
+	 out << std::setw(54) << "  Σ = total score, 1 point for win, 1/2 point for draw\n";
 	 out << '\n';
 	 out.flags(f);
  }
@@ -769,11 +772,14 @@ int CEloRatingCUI::ProcessCommand(const char *pszCommand,
 	 out << '\n';
 	}
    }
-   out << std::setw(Width+65) << "---------------------------------------------------------------------------------------------------------";
-   out << '\n';
-   out.flags(f);
-  }
-  break;
+	 out << std::setw(Width+65) << "---------------------------------------------------------------------------------------------------------\n";
+	 out << std::setw(47) << "  Δ = delta from the next higher rated opponent\n";
+	 out << std::setw(28) << "  # = number of games played\n";
+	 out << std::setw(54) << "  Σ = total score, 1 point for win, 1/2 point for draw\n";
+	 out << '\n';
+	 out.flags(f);
+}
+	 break;
 
   case IDC_Details: ////////////////////////////////////////////////////////
   {
